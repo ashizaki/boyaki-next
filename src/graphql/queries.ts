@@ -8,7 +8,6 @@ export const getPost = /* GraphQL */ `
       content
       id
       owner
-      ownerName
       timestamp
       type
     }
@@ -33,7 +32,6 @@ export const listPosts = /* GraphQL */ `
         content
         id
         owner
-        ownerName
         timestamp
         type
       }

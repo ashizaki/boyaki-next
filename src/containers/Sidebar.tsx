@@ -102,7 +102,7 @@ const Sidebar: React.FC<Props> = ({ activeListItem }) => {
             selected={activeListItem === "global-timeline"}
             onClick={() => {
               Auth.currentAuthenticatedUser().then((_user) => {
-                router.push("/global-timeline")
+                router.push("/")
               })
             }}
           >
@@ -116,9 +116,7 @@ const Sidebar: React.FC<Props> = ({ activeListItem }) => {
           <ListItemButton
             selected={activeListItem === "profile"}
             onClick={() => {
-              Auth.currentAuthenticatedUser().then((user) => {
-                router.push("/" + user.username)
-              })
+              router.push("/profile")
             }}
           >
             <ListItemIcon>

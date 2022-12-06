@@ -13,7 +13,6 @@ type Post {
   content: String
   id: ID!
   owner: String
-  ownerName: String
   timestamp: Int
   type: String
 }
@@ -29,7 +28,8 @@ type Query {
 }
 
 type Subscription {
-  onUpdate: Post @aws_subscribe(mutations : ["createPost", "deletePost"])
+  onCreate(owner: String): Post @aws_subscribe(mutations : ["createPost"])
+  onDelete(owner: String): Post @aws_subscribe(mutations : ["deletePost"])
 }
 
 enum SortDirection {
@@ -40,39 +40,4 @@ enum SortDirection {
 input CreatePostInput {
   content: String!
   id: ID
-}
-
-input ModelSubscriptionIntInput {
-  between: [Int]
-  eq: Int
-  ge: Int
-  gt: Int
-  in: [Int]
-  le: Int
-  lt: Int
-  ne: Int
-  notIn: [Int]
-}
-
-input ModelSubscriptionPostFilterInput {
-  and: [ModelSubscriptionPostFilterInput]
-  content: ModelSubscriptionStringInput
-  or: [ModelSubscriptionPostFilterInput]
-  timestamp: ModelSubscriptionIntInput
-  type: ModelSubscriptionStringInput
-}
-
-input ModelSubscriptionStringInput {
-  beginsWith: String
-  between: [String]
-  contains: String
-  eq: String
-  ge: String
-  gt: String
-  in: [String]
-  le: String
-  lt: String
-  ne: String
-  notContains: String
-  notIn: [String]
 }

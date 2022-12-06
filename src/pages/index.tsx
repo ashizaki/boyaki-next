@@ -6,7 +6,11 @@ I18n.putVocabularies(translations)
 I18n.setLanguage("ja")
 
 const Page: NextPage = () => {
-  return <Authenticator signUpAttributes={["email"]}>{({}) => <Posts />}</Authenticator>
+  return (
+    <Authenticator signUpAttributes={["email"]}>
+      {({}) => <Posts activeListItem={"global-timeline"} />}
+    </Authenticator>
+  )
 }
 
 export default Page

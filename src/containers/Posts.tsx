@@ -1,16 +1,15 @@
 import { GraphQLResult } from "@aws-amplify/api"
+import { CONNECTION_STATE_CHANGE, ConnectionState } from "@aws-amplify/pubsub"
 import { useAuthenticator } from "@aws-amplify/ui-react"
 import { Stack } from "@mui/material"
 import { CognitoUserSession } from "amazon-cognito-identity-js"
-import { ListPostsQuery, ListPostsQueryVariables, OnUpdateSubscription } from "API"
-import { API, graphqlOperation } from "aws-amplify"
+import { ListPostsQuery, ListPostsQueryVariables, OnCreateSubscription } from "API"
+import { API, graphqlOperation, Hub } from "aws-amplify"
 import PostList from "components/PostList"
 import Sidebar from "containers/Sidebar"
 import { listPosts } from "graphql/queries"
-import { onUpdate } from "graphql/subscriptions"
+import { onCreate } from "graphql/subscriptions"
 import React, { useEffect, useReducer, useState } from "react"
-import { CONNECTION_STATE_CHANGE, ConnectionState } from "@aws-amplify/pubsub"
-import { Hub } from "aws-amplify"
 
 const SUBSCRIPTION = "SUBSCRIPTION"
 const INITIAL_QUERY = "INITIAL_QUERY"
@@ -29,15 +28,16 @@ const reducer = (state, action) => {
   }
 }
 
-type OnUpdateSubscriptionData = {
-  value: { data: OnUpdateSubscription }
+type OnCreateSubscriptionData = {
+  value: { data: OnCreateSubscription }
 }
 
 type Props = {
-  userId?: string
+  owner?: string
+  activeListItem: string
 }
 
-const Posts: React.FC<Props> = ({ userId }) => {
+const Posts: React.FC<Props> = ({ owner, activeListItem }) => {
   const { user } = useAuthenticator((context) => [context.user])
   const [posts, dispatch] = useReducer(reducer, [])
   const [nextToken, setNextToken] = useState(null)
@@ -73,7 +73,7 @@ const Posts: React.FC<Props> = ({ userId }) => {
           listPosts,
           {
             sortDirection: "DESC",
-            owner: userId,
+            owner: owner,
             limit: 20, //default = 10
             nextToken: nextToken,
           } as ListPostsQueryVariables,
@@ -94,33 +94,36 @@ const Posts: React.FC<Props> = ({ userId }) => {
   useEffect(() => {
     if (!!session) {
       getPosts(INITIAL_QUERY)
-      const subscription = API.graphql(
-        graphqlOperation(onUpdate, {}, session.getIdToken().getJwtToken()),
+      const onCreateHandler = API.graphql(
+        graphqlOperation(
+          onCreate,
+          {
+            owner: owner,
+          },
+          session.getIdToken().getJwtToken(),
+        ),
       )
-      if ("subscribe" in subscription) {
-        const subscribe = subscription.subscribe({
-          next: (payload: OnUpdateSubscriptionData) => {
-            console.log(payload)
-            if (payload.value.data.onUpdate) {
+      if ("subscribe" in onCreateHandler) {
+        const onCreate = onCreateHandler.subscribe({
+          next: (payload: OnCreateSubscriptionData) => {
+            if (payload.value.data.onCreate) {
               console.log("subscription fired")
-              const post = payload.value.data.onUpdate
-              if (!userId || userId === payload.value.data.onUpdate.owner) {
-                dispatch({ type: SUBSCRIPTION, post: post })
-              }
+              const post = payload.value.data.onCreate
+              dispatch({ type: SUBSCRIPTION, post: post })
             }
           },
           error: (error) => {
             console.warn(error)
           },
         })
-        return () => subscribe.unsubscribe()
+        return () => onCreate.unsubscribe()
       }
     }
   }, [session])
 
   return (
     <Stack direction={"row"} sx={{ width: "100%", height: "100vh" }}>
-      <Sidebar activeListItem="global-timeline" />
+      <Sidebar activeListItem={activeListItem} />
       <Stack sx={{ flexGlow: 1, width: "100%" }}>
         <PostList
           isLoading={isLoading}

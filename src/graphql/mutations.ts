@@ -8,7 +8,6 @@ export const createPost = /* GraphQL */ `
       content
       id
       owner
-      ownerName
       timestamp
       type
     }
@@ -20,7 +19,6 @@ export const deletePost = /* GraphQL */ `
       content
       id
       owner
-      ownerName
       timestamp
       type
     }

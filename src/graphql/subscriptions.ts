@@ -2,13 +2,23 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onUpdate = /* GraphQL */ `
-  subscription OnUpdate {
-    onUpdate {
+export const onCreate = /* GraphQL */ `
+  subscription OnCreate($owner: String) {
+    onCreate(owner: $owner) {
       content
       id
       owner
-      ownerName
+      timestamp
+      type
+    }
+  }
+`;
+export const onDelete = /* GraphQL */ `
+  subscription OnDelete($owner: String) {
+    onDelete(owner: $owner) {
+      content
+      id
+      owner
       timestamp
       type
     }

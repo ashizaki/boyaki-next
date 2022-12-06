@@ -101,13 +101,13 @@ const PostItem: React.FC<ItemProp> = ({ post }) => {
     <ListItem alignItems="flex-start" key={post.id} sx={{ width: "100%" }}>
       <ListItemAvatar>
         <div style={{ cursor: "pointer" }} onClick={() => router.push("/" + post.owner)}>
-          <Avatar alt={post.ownerName} src="/" />
+          <Avatar alt={post.owner} src="/" />
         </div>
       </ListItemAvatar>
       <ListItemText
         primary={
           <React.Fragment>
-            {post.ownerName}
+            {post.owner}
             <Typography color="textSecondary" display="inline">
               {" " + String.fromCharCode(183) + " " + calcTimestampDiff(post.timestamp)}
             </Typography>
