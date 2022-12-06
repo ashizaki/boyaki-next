@@ -113,8 +113,6 @@ const Posts: React.FC<Props> = ({ userId }) => {
             console.warn(error)
           },
         })
-
-        console.log(subscribe)
         return () => subscribe.unsubscribe()
       }
     }

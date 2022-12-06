@@ -6,7 +6,7 @@ I18n.putVocabularies(translations)
 I18n.setLanguage("ja")
 
 const Page: NextPage = () => {
-  return <Authenticator>{({}) => <Posts />}</Authenticator>
+  return <Authenticator signUpAttributes={["email"]}>{({}) => <Posts />}</Authenticator>
 }
 
 export default Page
