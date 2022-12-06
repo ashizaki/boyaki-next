@@ -5,5 +5,6 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_USER_POOLS_ID: string
     readonly NEXT_PUBLIC_USER_WEB_CLIENT_ID: string
     readonly NEXT_PUBLIC_IDENTITY_POOL_ID: string
+    readonly NEXT_PUBLIC_GRAPHQL_URL: string
   }
 }

@@ -1,3 +1,4 @@
+import { useAuthenticator } from "@aws-amplify/ui-react"
 import PersonIcon from "@mui/icons-material/Person"
 import PublicIcon from "@mui/icons-material/Public"
 import {
@@ -10,9 +11,11 @@ import {
   ListItemText,
   TextField,
 } from "@mui/material"
-import { Auth } from "aws-amplify"
+import { CognitoUserSession } from "amazon-cognito-identity-js"
+import { API, Auth, graphqlOperation } from "aws-amplify"
+import { createPost } from "graphql/mutations"
 import { useRouter } from "next/router"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 type Props = {
   activeListItem: string
@@ -23,9 +26,24 @@ const MAX_POST_CONTENT_LENGTH = 140
 
 const Sidebar: React.FC<Props> = ({ activeListItem }) => {
   const router = useRouter()
+  const { user } = useAuthenticator((context) => [context.user])
   const [value, setValue] = useState("")
   const [isError, setIsError] = useState(false)
   const [helperText, setHelperText] = useState("")
+
+  const [session, setSession] = useState<CognitoUserSession>(null)
+
+  useEffect(() => {
+    if (user) {
+      user.getSession((error, session) => {
+        if (error) {
+          console.log(error)
+        } else {
+          setSession(session)
+        }
+      })
+    }
+  }, [user])
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value)
@@ -39,7 +57,24 @@ const Sidebar: React.FC<Props> = ({ activeListItem }) => {
   }
 
   const handlePost = async () => {
-    setValue("")
+    if (!!session) {
+      try {
+        await API.graphql(
+          graphqlOperation(
+            createPost,
+            {
+              input: {
+                content: value,
+              },
+            },
+            session.getIdToken().getJwtToken(),
+          ),
+        )
+        setValue("")
+      } catch (error) {
+        console.log(error)
+      }
+    }
   }
 
   const signOut = () => {
@@ -53,12 +88,15 @@ const Sidebar: React.FC<Props> = ({ activeListItem }) => {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        position: "relative",
+        "& .MuiDrawer-paper": {
+          width: drawerWidth,
+          boxSizing: "border-box",
+        },
       }}
       variant="permanent"
       anchor="left"
     >
-      <List>
+      <List sx={{ width: "100%" }}>
         <ListItem key="global-timeline">
           <ListItemButton
             selected={activeListItem === "global-timeline"}

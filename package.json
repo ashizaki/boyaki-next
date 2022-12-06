@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build && next export",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate": "amplify codegen"
   },
   "dependencies": {
+    "@aws-amplify/api": "^5.0.4",
     "@aws-amplify/ui-react": "^4.1.0",
     "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.10.5",
@@ -31,10 +33,6 @@
     "yarn": "1.22.17"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.15.0",
-    "@graphql-codegen/typescript": "^2.8.3",
-    "@graphql-codegen/typescript-operations": "^2.5.8",
-    "prettier": "^2.8.0",
-    "@graphql-codegen/client-preset": "1.2.1"
+    "prettier": "^2.8.0"
   }
 }

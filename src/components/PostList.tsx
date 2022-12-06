@@ -1,3 +1,4 @@
+import { Post } from "API"
 import moment from "moment"
 import { useRouter } from "next/router"
 import React from "react"
@@ -14,13 +15,14 @@ import {
   CircularProgress,
 } from "@mui/material"
 
-export default function PostList({
-  isLoading,
-  posts,
-  getAdditionalPosts,
-  listHeaderTitle,
-  listHeaderTitleButton,
-}) {
+type Props = {
+  isLoading: boolean
+  posts: Post[]
+  getAdditionalPosts: () => void
+  listHeaderTitle: string
+}
+
+const PostList: React.FC<Props> = ({ isLoading, posts, getAdditionalPosts, listHeaderTitle }) => {
   return (
     <div
       style={{
@@ -28,6 +30,7 @@ export default function PostList({
         wordBreak: "break-all",
         overflow: "scroll",
         borderRight: "1px solid #37444C",
+        backgroundColor: "#15202B",
         flexGrow: 1,
       }}
     >
@@ -36,7 +39,7 @@ export default function PostList({
           <CircularProgress size={25} />
         </div>
       ) : (
-        <List disablePadding>
+        <List disablePadding sx={{ backgroundColor: "#15202B" }}>
           <ListItem
             alignItems="flex-start"
             sx={{
@@ -47,9 +50,8 @@ export default function PostList({
               borderBottom: "1px solid #37444C",
             }}
           >
-            <Typography variant="h5" fontWeight="fontWeightBold">
+            <Typography variant="h5" color={"textPrimary"} fontWeight="fontWeightBold">
               {listHeaderTitle}
-              {listHeaderTitleButton && listHeaderTitleButton}
             </Typography>
           </ListItem>
           {posts.map((post) => (
@@ -76,7 +78,11 @@ export default function PostList({
 
 type Scale = "years" | "months" | "weeks" | "days" | "hours" | "minutes" | "seconds"
 
-function PostItem({ post }) {
+type ItemProp = {
+  post: Post
+}
+
+const PostItem: React.FC<ItemProp> = ({ post }) => {
   const now = moment()
   const router = useRouter()
 
@@ -95,20 +101,23 @@ function PostItem({ post }) {
     <ListItem alignItems="flex-start" key={post.id} sx={{ width: "100%" }}>
       <ListItemAvatar>
         <div style={{ cursor: "pointer" }} onClick={() => router.push("/" + post.owner)}>
-          <Avatar alt={post.owner} src="/" />
+          <Avatar alt={post.ownerName} src="/" />
         </div>
       </ListItemAvatar>
       <ListItemText
         primary={
           <React.Fragment>
-            {post.owner}
+            {post.ownerName}
             <Typography color="textSecondary" display="inline">
               {" " + String.fromCharCode(183) + " " + calcTimestampDiff(post.timestamp)}
             </Typography>
           </React.Fragment>
         }
         secondary={<Typography color="textPrimary">{post.content}</Typography>}
+        sx={{ color: "#fff" }}
       />
     </ListItem>
   )
 }
+
+export default PostList
