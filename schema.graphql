@@ -4,8 +4,21 @@
   subscription: Subscription
 }
 
+type FollowRelationship {
+  followeeId: ID!
+  followerId: ID!
+  timestamp: Int!
+}
+
+type FollowRelationshipConnection {
+  items: [FollowRelationship!]!
+  nextToken: String
+}
+
 type Mutation {
+  createFollowRelationship(input: FollowRelationshipInput!): FollowRelationship
   createPost(input: CreatePostInput!): Post
+  deleteFollowRelationship(followeeId: ID!): FollowRelationship
   deletePost(id: ID!): Post
 }
 
@@ -23,7 +36,9 @@ type PostConnection {
 }
 
 type Query {
+  getFollowRelationship(followeeId: ID!, followerId: ID!): FollowRelationship
   getPost(id: ID!): Post
+  listFollowRelationships(followeeId: ID!, limit: Int, nextToken: String, sortDirection: SortDirection): FollowRelationshipConnection
   listPosts(id: ID, limit: Int, nextToken: String, owner: String, sortDirection: SortDirection): PostConnection
 }
 
@@ -40,4 +55,8 @@ enum SortDirection {
 input CreatePostInput {
   content: String!
   id: ID
+}
+
+input FollowRelationshipInput {
+  followeeId: ID!
 }

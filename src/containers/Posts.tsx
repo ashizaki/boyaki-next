@@ -1,13 +1,20 @@
 import { GraphQLResult } from "@aws-amplify/api"
 import { CONNECTION_STATE_CHANGE, ConnectionState } from "@aws-amplify/pubsub"
 import { useAuthenticator } from "@aws-amplify/ui-react"
-import { Stack } from "@mui/material"
+import { Button, Stack } from "@mui/material"
 import { CognitoUserSession } from "amazon-cognito-identity-js"
-import { ListPostsQuery, ListPostsQueryVariables, OnCreateSubscription } from "API"
+import {
+  CreateFollowRelationshipMutation,
+  GetFollowRelationshipQuery,
+  ListPostsQuery,
+  ListPostsQueryVariables,
+  OnCreateSubscription,
+} from "API"
 import { API, graphqlOperation, Hub } from "aws-amplify"
 import PostList from "components/PostList"
 import Sidebar from "containers/Sidebar"
-import { listPosts } from "graphql/queries"
+import { createFollowRelationship, deleteFollowRelationship } from "graphql/mutations"
+import { getFollowRelationship, listPosts } from "graphql/queries"
 import { onCreate } from "graphql/subscriptions"
 import React, { useEffect, useReducer, useState } from "react"
 
@@ -43,6 +50,7 @@ const Posts: React.FC<Props> = ({ owner, activeListItem }) => {
   const [nextToken, setNextToken] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [session, setSession] = useState<CognitoUserSession>(null)
+  const [isFollowing, setIsFollowing] = useState(false)
 
   useEffect(() => {
     Hub.listen("api", (data: any) => {
@@ -86,14 +94,65 @@ const Posts: React.FC<Props> = ({ owner, activeListItem }) => {
     }
   }
 
+  const getIsFollowing = async ({ followerId, followeeId }) => {
+    const res = (await API.graphql(
+      graphqlOperation(
+        getFollowRelationship,
+        {
+          followeeId: followeeId,
+          followerId: followerId,
+        },
+        session.getIdToken().getJwtToken(),
+      ),
+    )) as GraphQLResult<GetFollowRelationshipQuery>
+    console.log(res)
+    return res.data.getFollowRelationship !== null
+  }
+
   const getAdditionalPosts = () => {
     if (nextToken === null) return //Reached the last page
     getPosts(ADDITIONAL_QUERY, nextToken)
   }
 
+  const follow = async () => {
+    console.log("follow")
+    const input = {
+      followeeId: owner,
+    }
+    const res = (await API.graphql(
+      graphqlOperation(
+        createFollowRelationship,
+        { input: input },
+        session.getIdToken().getJwtToken(),
+      ),
+    )) as GraphQLResult<CreateFollowRelationshipMutation>
+    console.log(res)
+    setIsFollowing(true)
+  }
+
+  const unfollow = async () => {
+    console.log("unfollow")
+    const res = await API.graphql(
+      graphqlOperation(
+        deleteFollowRelationship,
+        { followeeId: owner },
+        session.getIdToken().getJwtToken(),
+      ),
+    )
+    console.log(res)
+    setIsFollowing(false)
+  }
+
   useEffect(() => {
     if (!!session) {
-      getPosts(INITIAL_QUERY)
+      const init = async () => {
+        if (!!owner) {
+          setIsFollowing(await getIsFollowing({ followeeId: owner, followerId: user.username }))
+        }
+        getPosts(INITIAL_QUERY)
+      }
+
+      init()
       const onCreateHandler = API.graphql(
         graphqlOperation(
           onCreate,
@@ -129,7 +188,21 @@ const Posts: React.FC<Props> = ({ owner, activeListItem }) => {
           isLoading={isLoading}
           posts={posts}
           getAdditionalPosts={getAdditionalPosts}
-          listHeaderTitle={"Global Timeline"}
+          listHeaderTitle={owner || "Global Timeline"}
+          listHeaderButton={
+            user &&
+            owner &&
+            user.username !== owner &&
+            (isFollowing ? (
+              <Button variant="contained" color="primary" onClick={unfollow}>
+                Following
+              </Button>
+            ) : (
+              <Button variant="outlined" color="primary" onClick={follow}>
+                Follow
+              </Button>
+            ))
+          }
         />
       </Stack>
     </Stack>

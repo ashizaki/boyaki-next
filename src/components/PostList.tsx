@@ -20,9 +20,16 @@ type Props = {
   posts: Post[]
   getAdditionalPosts: () => void
   listHeaderTitle: string
+  listHeaderButton?: React.ReactNode
 }
 
-const PostList: React.FC<Props> = ({ isLoading, posts, getAdditionalPosts, listHeaderTitle }) => {
+const PostList: React.FC<Props> = ({
+  isLoading,
+  posts,
+  getAdditionalPosts,
+  listHeaderTitle,
+  listHeaderButton,
+}) => {
   return (
     <div
       style={{
@@ -49,6 +56,7 @@ const PostList: React.FC<Props> = ({ isLoading, posts, getAdditionalPosts, listH
               backgroundColor: "#15202B",
               borderBottom: "1px solid #37444C",
             }}
+            secondaryAction={listHeaderButton}
           >
             <Typography variant="h5" color={"textPrimary"} fontWeight="fontWeightBold">
               {listHeaderTitle}
@@ -100,7 +108,10 @@ const PostItem: React.FC<ItemProp> = ({ post }) => {
   return (
     <ListItem alignItems="flex-start" key={post.id} sx={{ width: "100%" }}>
       <ListItemAvatar>
-        <div style={{ cursor: "pointer" }} onClick={() => router.push("/" + post.owner)}>
+        <div
+          style={{ cursor: "pointer" }}
+          onClick={() => router.push({ pathname: "/users", query: { owner: post.owner } })}
+        >
           <Avatar alt={post.owner} src="/" />
         </div>
       </ListItemAvatar>
