@@ -46,14 +46,12 @@ export const listFollowRelationships = /* GraphQL */ `
 `;
 export const listPosts = /* GraphQL */ `
   query ListPosts(
-    $id: ID
     $limit: Int
     $nextToken: String
     $owner: String
     $sortDirection: SortDirection
   ) {
     listPosts(
-      id: $id
       limit: $limit
       nextToken: $nextToken
       owner: $owner
@@ -65,6 +63,24 @@ export const listPosts = /* GraphQL */ `
         owner
         timestamp
         type
+      }
+      nextToken
+    }
+  }
+`;
+export const listTimelines = /* GraphQL */ `
+  query ListTimelines($limit: Int, $nextToken: String) {
+    listTimelines(limit: $limit, nextToken: $nextToken) {
+      items {
+        post {
+          content
+          id
+          owner
+          timestamp
+          type
+        }
+        timestamp
+        userId
       }
       nextToken
     }

@@ -13,6 +13,21 @@ export const onCreate = /* GraphQL */ `
     }
   }
 `;
+export const onCreateTimeline = /* GraphQL */ `
+  subscription OnCreateTimeline($userId: ID!) {
+    onCreateTimeline(userId: $userId) {
+      post {
+        content
+        id
+        owner
+        timestamp
+        type
+      }
+      timestamp
+      userId
+    }
+  }
+`;
 export const onDelete = /* GraphQL */ `
   subscription OnDelete($owner: String) {
     onDelete(owner: $owner) {

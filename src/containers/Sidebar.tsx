@@ -1,4 +1,5 @@
 import { useAuthenticator } from "@aws-amplify/ui-react"
+import HomeIcon from "@mui/icons-material/Home"
 import PersonIcon from "@mui/icons-material/Person"
 import PublicIcon from "@mui/icons-material/Public"
 import {
@@ -26,7 +27,7 @@ const MAX_POST_CONTENT_LENGTH = 140
 
 const Sidebar: React.FC<Props> = ({ activeListItem }) => {
   const router = useRouter()
-  const { user } = useAuthenticator((context) => [context.user])
+  const { user, signOut } = useAuthenticator((context) => [context.user])
   const [value, setValue] = useState("")
   const [isError, setIsError] = useState(false)
   const [helperText, setHelperText] = useState("")
@@ -77,10 +78,9 @@ const Sidebar: React.FC<Props> = ({ activeListItem }) => {
     }
   }
 
-  const signOut = () => {
-    Auth.signOut()
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err))
+  const handleSignOut = () => {
+    signOut()
+    router.push("/")
   }
 
   return (
@@ -97,12 +97,27 @@ const Sidebar: React.FC<Props> = ({ activeListItem }) => {
       anchor="left"
     >
       <List sx={{ width: "100%" }}>
+        <ListItem key="home">
+          <ListItemButton
+            selected={activeListItem === "Home"}
+            onClick={() => {
+              Auth.currentAuthenticatedUser().then((_user) => {
+                router.push("/")
+              })
+            }}
+          >
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItemButton>
+        </ListItem>
         <ListItem key="global-timeline">
           <ListItemButton
             selected={activeListItem === "global-timeline"}
             onClick={() => {
               Auth.currentAuthenticatedUser().then((_user) => {
-                router.push("/")
+                router.push("/global-timeline")
               })
             }}
           >
@@ -162,7 +177,7 @@ const Sidebar: React.FC<Props> = ({ activeListItem }) => {
         <ListItem key="logout">
           <ListItemText
             primary={
-              <Button variant="outlined" onClick={signOut} fullWidth>
+              <Button variant="outlined" onClick={handleSignOut} fullWidth>
                 Logout
               </Button>
             }

@@ -9,6 +9,7 @@ import {
   ListPostsQuery,
   ListPostsQueryVariables,
   OnCreateSubscription,
+  Post,
 } from "API"
 import { API, graphqlOperation, Hub } from "aws-amplify"
 import PostList from "components/PostList"
@@ -22,14 +23,19 @@ const SUBSCRIPTION = "SUBSCRIPTION"
 const INITIAL_QUERY = "INITIAL_QUERY"
 const ADDITIONAL_QUERY = "ADDITIONAL_QUERY"
 
-const reducer = (state, action) => {
+type Action = {
+  type: "SUBSCRIPTION" | "INITIAL_QUERY" | "ADDITIONAL_QUERY"
+  posts: Post[]
+}
+
+const reducer = (state: Post[], action: Action) => {
   switch (action.type) {
     case INITIAL_QUERY:
       return action.posts
     case ADDITIONAL_QUERY:
       return [...state, ...action.posts]
     case SUBSCRIPTION:
-      return [action.post, ...state]
+      return [...action.posts, ...state]
     default:
       return state
   }
@@ -168,7 +174,7 @@ const Posts: React.FC<Props> = ({ owner, activeListItem }) => {
             if (payload.value.data.onCreate) {
               console.log("subscription fired")
               const post = payload.value.data.onCreate
-              dispatch({ type: SUBSCRIPTION, post: post })
+              dispatch({ type: SUBSCRIPTION, posts: [post] })
             }
           },
           error: (error) => {

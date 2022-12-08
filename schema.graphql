@@ -7,7 +7,7 @@
 type FollowRelationship {
   followeeId: ID!
   followerId: ID!
-  timestamp: Int!
+  timestamp: Float!
 }
 
 type FollowRelationshipConnection {
@@ -18,15 +18,16 @@ type FollowRelationshipConnection {
 type Mutation {
   createFollowRelationship(input: FollowRelationshipInput!): FollowRelationship
   createPost(input: CreatePostInput!): Post
+  createTimeline(input: CreateTimelineInput): Timeline @aws_iam
   deleteFollowRelationship(followeeId: ID!): FollowRelationship
   deletePost(id: ID!): Post
 }
 
-type Post {
+type Post @aws_cognito_user_pools @aws_iam {
   content: String
   id: ID!
   owner: String
-  timestamp: Int
+  timestamp: Float
   type: String
 }
 
@@ -39,12 +40,25 @@ type Query {
   getFollowRelationship(followeeId: ID!, followerId: ID!): FollowRelationship
   getPost(id: ID!): Post
   listFollowRelationships(followeeId: ID!, limit: Int, nextToken: String, sortDirection: SortDirection): FollowRelationshipConnection
-  listPosts(id: ID, limit: Int, nextToken: String, owner: String, sortDirection: SortDirection): PostConnection
+  listPosts(limit: Int, nextToken: String, owner: String, sortDirection: SortDirection): PostConnection
+  listTimelines(limit: Int, nextToken: String): TimelineConnection
 }
 
 type Subscription {
   onCreate(owner: String): Post @aws_subscribe(mutations : ["createPost"])
+  onCreateTimeline(userId: ID!): Timeline @aws_subscribe(mutations : ["createTimeline"])
   onDelete(owner: String): Post @aws_subscribe(mutations : ["deletePost"])
+}
+
+type Timeline @aws_cognito_user_pools @aws_iam {
+  post: Post
+  timestamp: Float!
+  userId: ID!
+}
+
+type TimelineConnection {
+  items: [Timeline]!
+  nextToken: String
 }
 
 enum SortDirection {
@@ -55,6 +69,12 @@ enum SortDirection {
 input CreatePostInput {
   content: String!
   id: ID
+}
+
+input CreateTimelineInput {
+  postId: String!
+  timestamp: Float!
+  userId: ID!
 }
 
 input FollowRelationshipInput {

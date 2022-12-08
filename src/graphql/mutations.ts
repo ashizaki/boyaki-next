@@ -22,6 +22,21 @@ export const createPost = /* GraphQL */ `
     }
   }
 `;
+export const createTimeline = /* GraphQL */ `
+  mutation CreateTimeline($input: CreateTimelineInput) {
+    createTimeline(input: $input) {
+      post {
+        content
+        id
+        owner
+        timestamp
+        type
+      }
+      timestamp
+      userId
+    }
+  }
+`;
 export const deleteFollowRelationship = /* GraphQL */ `
   mutation DeleteFollowRelationship($followeeId: ID!) {
     deleteFollowRelationship(followeeId: $followeeId) {

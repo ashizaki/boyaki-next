@@ -27,6 +27,19 @@ export type Post = {
   type?: string | null,
 };
 
+export type CreateTimelineInput = {
+  postId: string,
+  timestamp: number,
+  userId: string,
+};
+
+export type Timeline = {
+  __typename: "Timeline",
+  post?: Post | null,
+  timestamp: number,
+  userId: string,
+};
+
 export enum SortDirection {
   ASC = "ASC",
   DESC = "DESC",
@@ -42,6 +55,12 @@ export type FollowRelationshipConnection = {
 export type PostConnection = {
   __typename: "PostConnection",
   items:  Array<Post >,
+  nextToken?: string | null,
+};
+
+export type TimelineConnection = {
+  __typename: "TimelineConnection",
+  items:  Array<Timeline | null >,
   nextToken?: string | null,
 };
 
@@ -70,6 +89,26 @@ export type CreatePostMutation = {
     owner?: string | null,
     timestamp?: number | null,
     type?: string | null,
+  } | null,
+};
+
+export type CreateTimelineMutationVariables = {
+  input?: CreateTimelineInput | null,
+};
+
+export type CreateTimelineMutation = {
+  createTimeline?:  {
+    __typename: "Timeline",
+    post?:  {
+      __typename: "Post",
+      content?: string | null,
+      id: string,
+      owner?: string | null,
+      timestamp?: number | null,
+      type?: string | null,
+    } | null,
+    timestamp: number,
+    userId: string,
   } | null,
 };
 
@@ -151,7 +190,6 @@ export type ListFollowRelationshipsQuery = {
 };
 
 export type ListPostsQueryVariables = {
-  id?: string | null,
   limit?: number | null,
   nextToken?: string | null,
   owner?: string | null,
@@ -173,6 +211,31 @@ export type ListPostsQuery = {
   } | null,
 };
 
+export type ListTimelinesQueryVariables = {
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListTimelinesQuery = {
+  listTimelines?:  {
+    __typename: "TimelineConnection",
+    items:  Array< {
+      __typename: "Timeline",
+      post?:  {
+        __typename: "Post",
+        content?: string | null,
+        id: string,
+        owner?: string | null,
+        timestamp?: number | null,
+        type?: string | null,
+      } | null,
+      timestamp: number,
+      userId: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type OnCreateSubscriptionVariables = {
   owner?: string | null,
 };
@@ -185,6 +248,26 @@ export type OnCreateSubscription = {
     owner?: string | null,
     timestamp?: number | null,
     type?: string | null,
+  } | null,
+};
+
+export type OnCreateTimelineSubscriptionVariables = {
+  userId: string,
+};
+
+export type OnCreateTimelineSubscription = {
+  onCreateTimeline?:  {
+    __typename: "Timeline",
+    post?:  {
+      __typename: "Post",
+      content?: string | null,
+      id: string,
+      owner?: string | null,
+      timestamp?: number | null,
+      type?: string | null,
+    } | null,
+    timestamp: number,
+    userId: string,
   } | null,
 };
 
